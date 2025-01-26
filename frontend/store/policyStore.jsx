@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import axios from "axios";
 
-const API_URL = "https://tourbookingplan-backend.onrender.com/api/policies"; // Replace with your backend URL
+const API_URL = "https://tourbookingplan-backend.onrender.com/api"; // Replace with your backend URL
 
 // const API_URL = "http://localhost:3500/api/policies";
 
