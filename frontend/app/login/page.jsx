@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, CheckCircle } from "lucide-react"; // Import CheckCircle for the success icon
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // State to control success modal visibility
   const router = useRouter();
   const { login } = useAuthStore();
 
@@ -24,6 +25,7 @@ const LoginPage = () => {
     window.location.href =
       "https://tourbookingplan-backend.onrender.com/api/auth/google";
   };
+
   // Handle Google OAuth2 login
   // const handleGoogleLogin = () => {
   //   // Redirect to the backend endpoint that initiates Google OAuth2
@@ -43,25 +45,31 @@ const LoginPage = () => {
       console.log("Logged-in User:", user);
 
       if (!user) {
-        throw new Error("Invalid credentials");
+        throw new Error("Invalid password or email. Please try again.");
       }
 
-      // Check for user role
-      const { role, id } = user;
+      // Show success modal
+      setShowSuccessModal(true);
 
-      if (!role) {
-        throw new Error("User role is not defined");
-      }
+      // Redirect after a short delay
+      setTimeout(() => {
+        // Check for user role
+        const { role, id } = user;
 
-      // Redirect based on user role
-      if (role === "subadmin") {
-        if (!id) {
-          throw new Error("User ID is required for subadmin redirection");
+        if (!role) {
+          throw new Error("User role is not defined");
         }
-        router.push(`/company/${id}/dashboard`);
-      } else {
-        router.push(`/profile/${id}/topcard`);
-      }
+
+        // Redirect based on user role
+        if (role === "subadmin") {
+          if (!id) {
+            throw new Error("User ID is required for subadmin redirection");
+          }
+          router.push(`/company/${id}/dashboard`);
+        } else {
+          router.push(`/profile/${id}/topcard`);
+        }
+      }, 2000); // Redirect after 2 seconds
     } catch (err) {
       setError(err.message || "Login failed. Please try again.");
       console.error("Login error:", err);
@@ -72,6 +80,17 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+            <CheckCircle className="text-green-500 w-12 h-12 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-4">Login Successful!</h2>
+            <p className="text-gray-600">You are being redirected...</p>
+          </div>
+        </div>
+      )}
+
       <div className="flex bg-white rounded-lg shadow-lg w-[900px] overflow-hidden">
         {/* Left Side: Form */}
         <div className="w-1/2 p-8">

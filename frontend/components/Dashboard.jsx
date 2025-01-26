@@ -121,7 +121,7 @@ const Dashboard = ({ children, id }) => {
               <div className="text-right">
                 <p className="text-lg font-medium">{admin.name}</p>
                 <p className="text-xs text-gray-500">
-                  {admin.role || "No Role"}
+                  {admin.role || " Admin"}
                 </p>
               </div>
             ) : (

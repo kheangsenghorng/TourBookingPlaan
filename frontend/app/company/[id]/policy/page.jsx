@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import usePolicyStore from "@/store/policyStore";
-import { FaEdit, FaTrash } from "react-icons/fa"; // Import icons
+import { FaEdit, FaTrash, FaCheckCircle } from "react-icons/fa"; // Import icons
 
 const InviteCard = () => {
   const { id } = useParams(); // Get sub-admin ID from URL params
@@ -15,6 +15,8 @@ const InviteCard = () => {
   const [editingPolicy, setEditingPolicy] = useState(null); // State to track policy being edited
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false); // State for delete confirmation form
   const [policyToDelete, setPolicyToDelete] = useState(null); // Track which policy is being deleted
+  const [showCreateSuccess, setShowCreateSuccess] = useState(false); // State for create success message
+  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false); // State for delete success message
 
   // Zustand store functions and state
   const {
@@ -44,20 +46,26 @@ const InviteCard = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingPolicy) {
-      // Update existing policy
-      await updatePolicy(id, editingPolicy._id, {
-        title,
-        description,
-      });
-    } else {
-      // Create new policy
-      await createPolicy(id, { title, description });
+    try {
+      if (editingPolicy) {
+        // Update existing policy
+        await updatePolicy(id, editingPolicy._id, {
+          title,
+          description,
+        });
+      } else {
+        // Create new policy
+        await createPolicy(id, { title, description });
+        setShowCreateSuccess(true); // Show success message
+        setTimeout(() => setShowCreateSuccess(false), 3000); // Hide success message after 3 seconds
+      }
+      setShowForm(false); // Hide the form after submission
+      setTitle(""); // Reset form fields
+      setDescription("");
+      setEditingPolicy(null); // Reset editing state
+    } catch (err) {
+      console.error("Error creating/updating policy:", err);
     }
-    setShowForm(false); // Hide the form after submission
-    setTitle(""); // Reset form fields
-    setDescription("");
-    setEditingPolicy(null); // Reset editing state
   };
 
   // Handle form cancellation
@@ -93,6 +101,8 @@ const InviteCard = () => {
       await deletePolicy(id, policyToDelete);
       setShowDeleteConfirmation(false); // Hide the confirmation form
       setPolicyToDelete(null); // Reset the policy to delete
+      setShowDeleteSuccess(true); // Show success message
+      setTimeout(() => setShowDeleteSuccess(false), 3000); // Hide success message after 3 seconds
     }
   };
 
@@ -107,11 +117,24 @@ const InviteCard = () => {
     setIsActiveFilter(value); // Update the isActive filter
   };
 
-  if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="p-6">
+      {/* Success Modals */}
+      {showCreateSuccess && (
+        <SuccessModal
+          message="Policy created successfully!"
+          onClose={() => setShowCreateSuccess(false)}
+        />
+      )}
+      {showDeleteSuccess && (
+        <SuccessModal
+          message="Policy deleted successfully!"
+          onClose={() => setShowDeleteSuccess(false)}
+        />
+      )}
+
       {/* Add New Policy Button */}
       <button
         onClick={() => setShowForm(true)}
@@ -267,6 +290,18 @@ const InviteCard = () => {
           onCancel={handleDeleteCancel}
         />
       )}
+    </div>
+  );
+};
+
+// Success Modal Component
+const SuccessModal = ({ message }) => {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md text-center">
+        <FaCheckCircle className="text-green-500 text-6xl mx-auto mb-4" />
+        <h2 className="text-xl font-bold mb-4">{message}</h2>
+      </div>
     </div>
   );
 };

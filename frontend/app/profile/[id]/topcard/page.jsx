@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FaStar } from "react-icons/fa";
+import { FaStar, FaCheckCircle } from "react-icons/fa"; // Import FaCheckCircle for the success icon
 import { useAuthStore } from "../../../../store/authStore";
 import { useParams } from "next/navigation";
 import { useTourStore } from "../../../../store/package";
-
 import Services from "../../../../components/home/Card/Service";
 
 export default function ProfilePage() {
@@ -19,6 +18,9 @@ export default function ProfilePage() {
 
   // State to manage loading and error for each tour's booking
   const [bookingStates, setBookingStates] = useState({});
+
+  // State to manage success modal visibility
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Fetch all tours when the component mounts
   useEffect(() => {
@@ -58,6 +60,7 @@ export default function ProfilePage() {
 
       const response = await fetch(
         `https://tourbookingplan-backend.onrender.com/api/bookings/${userId}`,
+         //`http://localhost:3500/api/bookings/${userId}`,
         {
           method: "POST",
           headers: {
@@ -74,7 +77,9 @@ export default function ProfilePage() {
       const data = await response.json();
       console.log("Booking created:", data.booking);
 
-      // Optionally, update state or show a success message
+      // Show success modal
+      setShowSuccessModal(true);
+      setTimeout(() => setShowSuccessModal(false), 3000); // Hide success modal after 3 seconds
     } catch (error) {
       // Set error state for this specific tour
       setBookingStates((prev) => ({
@@ -103,6 +108,19 @@ export default function ProfilePage() {
 
   return (
     <div>
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+            <FaCheckCircle className="text-green-500 text-6xl mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-4">Booking Successful!</h2>
+            <p className="text-gray-600">
+              Your booking has been created successfully.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="px-20">
         <h1 className="text-3xl text-center font-bold py-5">
           Top Destinations

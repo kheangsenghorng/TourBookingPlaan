@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 const API_URL = "https://tourbookingplan-backend.onrender.com/api/admins";
-// const API_URL = "http://localhost:3500/api/admins";
+//const API_URL = "http://localhost:3500/api/admins";
 
 export const useAdminStore = create((set) => ({
   admin: null, // Admin object (or null if not logged in)
