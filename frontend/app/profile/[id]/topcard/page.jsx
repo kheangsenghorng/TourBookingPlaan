@@ -60,7 +60,7 @@ export default function ProfilePage() {
 
       const response = await fetch(
         `https://tourbookingplan-backend.onrender.com/api/bookings/${userId}`,
-         //`http://localhost:3500/api/bookings/${userId}`,
+        //`http://localhost:3500/api/bookings/${userId}`,
         {
           method: "POST",
           headers: {

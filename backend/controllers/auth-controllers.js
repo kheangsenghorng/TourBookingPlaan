@@ -69,7 +69,7 @@ export const signup = async (req, res) => {
       role,
       status,
       verificationToken,
-      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
+      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
       adminId: role === "user" || role === "subadmin" ? allowedIDadmin : null,
     });
 
@@ -124,6 +124,16 @@ export const signup = async (req, res) => {
     });
   } catch (error) {
     console.error("Error during signup:", error);
+
+    // Handle duplicate key error for email or googleId
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "User with this email already exists.",
+      });
+    }
+
+    // Handle other errors
     return res.status(500).json({
       success: false,
       message: "Server error. Please try again.",
@@ -315,7 +325,9 @@ export const handleGoogle = async (req, res) => {
       await user.save();
 
       if (user.role === "user") {
-        return res.redirect(`${process.env.CLIENT_URL}/profile/${user._id}/topcard`);
+        return res.redirect(
+          `${process.env.CLIENT_URL}/profile/${user._id}/topcard`
+        );
       } else if (user.role === "subadmin") {
         return res.redirect(
           `${process.env.CLIENT_URL}/company/${user._id}/dashboard`
