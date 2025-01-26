@@ -6,16 +6,7 @@ import { faHeart, faBriefcase } from "@fortawesome/free-solid-svg-icons";
 import Link from 'next/link';
 import { useAuthStore } from "@/store/authStore";
 
-/**
- * @typedef {Object} ProfileUserProps
- * @property {string} id - The ID of the user.
- */
 
-/**
- * ProfileUser component.
- * @param {ProfileUserProps} props - The component props.
- * @returns {JSX.Element} The rendered component.
- */
 const ProfileUser = ({ id }) => {
   const { user, fetchUserById } = useAuthStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);

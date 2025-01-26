@@ -3,6 +3,8 @@ import { create } from "zustand";
 const API_LOCATION_URL =
   "https://tourbookingplan-backend.onrender.com/api/locations";
 
+  // const API_LOCATION_URL = "http://localhost:3500/api/locations";
+
 export const useLocationStore = create((set, get) => ({
   locations: [],
   lastId: 0, // Initialize lastId with 0; it'll be updated after fetching from the backend.

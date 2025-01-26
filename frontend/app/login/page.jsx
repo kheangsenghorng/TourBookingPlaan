@@ -21,8 +21,14 @@ const LoginPage = () => {
   // Handle Google OAuth2 login
   const handleGoogleLogin = () => {
     // Redirect to the backend endpoint that initiates Google OAuth2
-    window.location.href = "https://tourbookingplan-backend.onrender.com/api/auth/google";
+    window.location.href =
+      "https://tourbookingplan-backend.onrender.com/api/auth/google";
   };
+  // Handle Google OAuth2 login
+  // const handleGoogleLogin = () => {
+  //   // Redirect to the backend endpoint that initiates Google OAuth2
+  //   window.location.href = "http://localhost:3500/api/auth/google";
+  // };
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -54,7 +60,7 @@ const LoginPage = () => {
         }
         router.push(`/company/${id}/dashboard`);
       } else {
-        router.push(`/profile/${id}`);
+        router.push(`/profile/${id}/topcard`);
       }
     } catch (err) {
       setError(err.message || "Login failed. Please try again.");

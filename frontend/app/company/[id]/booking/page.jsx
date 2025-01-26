@@ -74,7 +74,7 @@ const GuestTable = () => {
                   className="border-b border-gray-200 hover:bg-gray-100"
                 >
                   <td className="py-3 px-6 font-bold text-left">
-                    {booking.user?.name}
+                    {booking.user?.name || "N/A"}
                   </td>
                   <td className="py-3 px-6 text-left">{booking.tour?.name}</td>
                   <td className="py-3 px-6 text-left">

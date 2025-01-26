@@ -1,7 +1,8 @@
 import { create } from "zustand";
 
 import axios from "axios";
-const API_URL = "hhttps://tourbookingplan-backend.onrender.com/api/bookings";
+const API_URL = "https://tourbookingplan-backend.onrender.com/api/bookings";
+// const API_URL = "http://localhost:3500/api/bookings";
 
 export const useBookingStore = create((set) => ({
   bookings: [],
@@ -65,7 +66,7 @@ export const useBookingStore = create((set) => ({
   createBooking: async (bookingData) => {
     set({ loading: true, error: null });
     try {
-      const response = await fetch(`${API_URL}`, {
+      const response = await fetch(`${API_URL}/${userId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

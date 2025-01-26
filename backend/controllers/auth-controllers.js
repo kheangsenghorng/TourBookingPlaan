@@ -315,7 +315,7 @@ export const handleGoogle = async (req, res) => {
       await user.save();
 
       if (user.role === "user") {
-        return res.redirect(`${process.env.CLIENT_URL}?id=${user._id}`);
+        return res.redirect(`${process.env.CLIENT_URL}/profile/${user._id}/topcard`);
       } else if (user.role === "subadmin") {
         return res.redirect(
           `${process.env.CLIENT_URL}/company/${user._id}/dashboard`

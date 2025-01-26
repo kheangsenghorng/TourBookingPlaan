@@ -1,19 +1,99 @@
-"use client"
+"use client";
 
-import React, { useEffect } from "react";
-import { useTourStore } from "../../../../store/package"; // Adjust the import path accordingly
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { FaStar } from "react-icons/fa";
+import { useAuthStore } from "../../../../store/authStore";
+import { useParams } from "next/navigation";
+import { useTourStore } from "../../../../store/package";
 
-const TourList = () => {
-  const { tours, loading, error, fetchAllTours } = useTourStore();
+import Services from "../../../../components/home/Card/Service";
+
+export default function ProfilePage() {
+  const { id } = useParams();
+  const { user, isLoading, error, fetchImage, fetchUserById } = useAuthStore();
+  const { tours, loading, fetchAllTours } = useTourStore();
+
+  // Ensure `id` is a string
+  const userId = Array.isArray(id) ? id[0] : id || "";
+
+  // State to manage loading and error for each tour's booking
+  const [bookingStates, setBookingStates] = useState({});
 
   // Fetch all tours when the component mounts
   useEffect(() => {
     fetchAllTours();
   }, [fetchAllTours]);
 
+  // Fetch user data when `userId` changes
+  useEffect(() => {
+    if (userId) {
+      fetchUserById(userId).catch(() =>
+        console.error("Error in fetchUserById:")
+      );
+    }
+  }, [userId, fetchUserById]);
+
+  // Fetch user image when `user._id` changes
+  useEffect(() => {
+    if (user?._id) {
+      fetchImage(user._id).catch(() => console.error("Error in fetchImage:"));
+    }
+  }, [user, fetchImage]);
+
+  // Function to handle booking for a specific tour
+  const handleBooking = async (tourId, companyId) => {
+    // Set loading state for this specific tour
+    setBookingStates((prev) => ({
+      ...prev,
+      [tourId]: { loading: true, error: null },
+    }));
+
+    try {
+      const bookingData = {
+        tour: tourId,
+        company: companyId,
+        members: 1, // Replace with actual number of members
+      };
+
+      const response = await fetch(
+        `https://tourbookingplan-backend.onrender.com/api/bookings/${userId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(bookingData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to create booking");
+      }
+
+      const data = await response.json();
+      console.log("Booking created:", data.booking);
+
+      // Optionally, update state or show a success message
+    } catch (error) {
+      // Set error state for this specific tour
+      setBookingStates((prev) => ({
+        ...prev,
+        [tourId]: { loading: false, error: error.message },
+      }));
+      console.error("Error creating booking:", error);
+    } finally {
+      // Reset loading state for this specific tour
+      setBookingStates((prev) => ({
+        ...prev,
+        [tourId]: { loading: false, error: null },
+      }));
+    }
+  };
+
   // Display loading state
-  if (loading) {
-    return <div>Loading tours...</div>;
+  if (!isLoading || loading) {
+    return <div>Loading...</div>;
   }
 
   // Display error state
@@ -21,36 +101,86 @@ const TourList = () => {
     return <div>Error: {error}</div>;
   }
 
-  // Display tours
   return (
     <div>
-      <h1>All Tours</h1>
-      {tours.length > 0 ? (
-        <ul>
-          {tours.map((tour) => (
-            <li key={tour._id}>
-              <h2>{tour.name}</h2>
-              <p>{tour.description}</p>
-              <p>Price: ${tour.price}</p>
-              <p>Duration: {tour.duration} days</p>
-              <p>Location: {tour.location.name}</p> {/* Assuming location has a "name" field */}
-              <p>Category: {tour.category.name}</p> {/* Assuming category has a "name" field */}
-              <p>Company: {tour.company.name}</p> {/* Assuming company has a "name" field */}
-              <img src={tour.mainImage} alt={tour.name} />
-              <div>
-                <h3>Gallery Images:</h3>
-                {tour.galleryImages.map((image, index) => (
-                  <img key={index} src={image} alt={`Gallery ${index + 1}`} />
-                ))}
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No tours available.</p>
-      )}
+      <div className="px-20">
+        <h1 className="text-3xl text-center font-bold py-5">
+          Top Destinations
+        </h1>
+        <div className="flex flex-wrap justify-center gap-6">
+          {tours.length > 0 ? (
+            tours
+              .slice(0, 8) // Limit the number of tours to 8
+              .map((tour) => (
+                <div
+                  key={tour._id} // Use tour._id as the key
+                  className="w-72 bg-white rounded-lg shadow-md overflow-hidden transform transition-transform hover:scale-105 cursor-pointer"
+                >
+                  <Link href={`/destination/${tour._id}`}>
+                    <div>
+                      <img
+                        src={tour.mainImage}
+                        alt={tour.name}
+                        className="w-full h-60 object-cover"
+                      />
+                      <div className="p-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-yellow-500 font-bold flex items-center">
+                            <FaStar className="mr-1" /> {tour.rating || "N/A"}
+                          </span>
+                          <span className="text-gray-500 text-sm">
+                            ({tour.reviews || 0} reviews)
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-semibold mt-2">
+                          {tour.name}
+                        </h3>
+                        <p className="text-gray-600 mt-1">
+                          {tour.duration} days
+                        </p>
+                        <div className="flex items-center justify-between mt-4">
+                          <span className="text-xl font-bold">
+                            ${tour.price}{" "}
+                            <span className="text-gray-500 text-sm">
+                              / person
+                            </span>
+                          </span>
+                          <button
+                            className="bg-blue-500 text-white text-xs px-4 py-2 rounded-full shadow hover:bg-blue-700 transition-transform duration-300 transform hover:rotate-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+                            onClick={(e) => {
+                              e.preventDefault(); // Prevent Link navigation
+                              handleBooking(tour._id, tour.company); // Trigger booking for this tour
+                            }}
+                            disabled={bookingStates[tour._id]?.loading} // Disable button while booking is in progress
+                          >
+                            {bookingStates[tour._id]?.loading
+                              ? "Booking..."
+                              : "Book Now"}
+                          </button>
+                        </div>
+                        {bookingStates[tour._id]?.error && (
+                          <div className="text-red-500 text-sm mt-2">
+                            {bookingStates[tour._id].error}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              ))
+          ) : (
+            <p>No tours available.</p>
+          )}
+        </div>
+        <div className="flex items-center justify-center p-6">
+          <Link href="/allTopTours">
+            <button className="bg-blue-500 px-4 py-2 text-white font-semibold rounded hover:bg-blue-600">
+              See More
+            </button>
+          </Link>
+        </div>
+      </div>
+      <Services />
     </div>
   );
-};
-
-export default TourList;
+}

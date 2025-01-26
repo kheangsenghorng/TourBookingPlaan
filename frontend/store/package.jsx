@@ -3,6 +3,7 @@ import axios from "axios";
 
 const API_URL = "https://tourbookingplan-backend.onrender.com/api/tours";
 
+// const API_URL = "http://localhost:3500/api/tours";
 export const useTourStore = create((set) => ({
   tours: [],
   currentTour: null,
