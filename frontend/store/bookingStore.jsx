@@ -1,8 +1,10 @@
 import { create } from "zustand";
 
 import axios from "axios";
- const API_URL = "https://tourbookingplan-backend.onrender.com/api/bookings";
-//const API_URL = "http://localhost:3500/api/bookings";
+ 
+const API_URL = "https://tourbookingplan-backend.onrender.com/api/bookings";
+
+// const API_URL = "http://localhost:3500/api/bookings";
 
 export const useBookingStore = create((set) => ({
   bookings: [],
